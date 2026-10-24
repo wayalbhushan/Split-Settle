@@ -13,10 +13,10 @@ graph TD
     Db[("PostgreSQL 16 Database")]
     LLM["External LLM Provider (Gemini / Groq)"]
 
-    Client -->|HTTP / JSON (snake_case)| Api
+    Client -->|"HTTP / JSON (snake_case)"| Api
     Api --> Core
     Api --> Data
-    Api -.->|AI Parse Sentence| LLM
+    Api -.->|"AI Parse Sentence"| LLM
     Data --> Db
 ```
 
