@@ -25,19 +25,19 @@
 - Needs from me: none
 
 ## Phase 5: React Client against the .NET API
+- Status: done
+- Date: 2026-10-24
+- Test totals: 62 passed, 0 failed
+- Last commit hash: pending
+- Notes: Wired client/src/api.js with VITE_API_BASE_URL, enabled CORS in .NET API, verified build and lint, documented all 12 client calls in docs/CLIENT_CALLS.md, verified manual checklist in docs/MANUAL_TEST.md, and validated all user flows in browser.
+- Needs from me: none
+
+## Phase 6: Generative AI Parse Feature
 - Status: in progress
 - Date: 2026-10-24
 - Test totals: 62 passed, 0 failed
 - Last commit hash: 
-- Notes: Starting Phase 5 to configure CORS, wire API URL, verify React client builds, test all client calls against live .NET API, create docs/CLIENT_CALLS.md, and run browser flow.
-- Needs from me: none
-
-## Phase 6: Generative AI Parse Feature
-- Status: not started
-- Date: 
-- Test totals: 
-- Last commit hash: 
-- Notes: 
+- Notes: Starting Phase 6 natural language expense parse feature.
 - Needs from me: none
 
 ## Phase 7: Docker, CI, Configuration

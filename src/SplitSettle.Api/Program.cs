@@ -29,6 +29,19 @@ builder.Services.AddScoped<ISettlementService, SettlementService>();
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>();
 
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:5173" };
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+            .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .WithHeaders("Content-Type", "Authorization");
+    });
+});
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -40,6 +53,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();

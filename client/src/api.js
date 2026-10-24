@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5055';
+const BASE_URL = apiBase.endsWith('/api') ? apiBase : `${apiBase}/api`;
 
 export async function fetchApi(path, options = {}) {
   const url = `${BASE_URL}${path}`;
@@ -14,12 +15,16 @@ export async function fetchApi(path, options = {}) {
     let errorData;
     try {
       errorData = await response.json();
-    } catch (e) {
+    } catch {
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
     const error = new Error('Validation Error');
     error.data = errorData;
     throw error;
+  }
+
+  if (response.status === 204) {
+    return null;
   }
 
   return response.json();
