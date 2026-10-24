@@ -83,5 +83,5 @@ dotnet test
 1. **Free hosting cold starts**: When deployed on free-tier container hosting such as Render, the service spins down after 15 minutes of inactivity. The first request after idle can take 50 to 90 seconds to wake up.
 2. **Single currency only**: SplitSettle handles all monetary calculations in a single base currency formatted with two decimal places. Multi-currency conversions and exchange rate lookups are not supported.
 3. **No authentication**: Groups and expenses are accessed directly by group identifier without user accounts or password authentication.
-4. **AI feature accuracy**: Natural language expense parsing depends on external LLM availability. When no API key is configured, the endpoint returns HTTP 503. The AI accuracy score is recorded in `docs/AI_EVAL.md` as NOT MEASURED until evaluated against a live API key.
+4. **AI feature accuracy**: Natural language expense parsing achieves a measured score of 17 / 20 (85.0%) on the evaluation dataset using Gemini (gemini-3.5-flash-lite), as documented in `docs/AI_EVAL.md`.
 5. **Single-instance startup migrations**: Automatic schema migrations on application startup are designed for single-replica deployments. Concurrent replicas could encounter race conditions during migration execution.

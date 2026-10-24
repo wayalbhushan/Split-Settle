@@ -37,7 +37,7 @@ public class LlmClient : ILlmClient
         }
 
         var isGroq = provider.Equals("Groq", StringComparison.OrdinalIgnoreCase);
-        var defaultModel = isGroq ? "llama-3.3-70b-versatile" : "gemini-2.0-flash";
+        var defaultModel = isGroq ? "llama-3.3-70b-versatile" : "gemini-3.5-flash-lite";
         var model = _configuration["Llm:Model"]?.Trim();
         if (string.IsNullOrWhiteSpace(model))
         {

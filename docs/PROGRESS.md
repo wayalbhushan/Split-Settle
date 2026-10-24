@@ -37,7 +37,7 @@
 - Date: 2026-10-24
 - Test totals: 75 passed, 0 failed
 - Last commit hash: 506c0f9
-- Notes: Implemented ILlmClient in Core, LlmClient with Gemini and Groq support, ParseService with prompt safety delimiters and strict JSON validation, POST parse endpoint, eval dataset with 20 sentences including 4 hard cases, fake LLM test suite, NOT MEASURED in docs/AI_EVAL.md, and React natural language parse box with draft preview.
+- Notes: Implemented ILlmClient in Core, LlmClient with Gemini and Groq support, ParseService with prompt safety delimiters and strict JSON validation, POST parse endpoint, eval dataset with 20 sentences including 4 hard cases, fake LLM test suite, live evaluation run resulting in 17/20 (85.0%) measured score in docs/AI_EVAL.md, and React natural language parse box with draft preview.
 - Needs from me: none
 
 ## Phase 7: Docker, CI, Configuration

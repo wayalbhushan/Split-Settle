@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using SplitSettle.Api.DTOs;
 using SplitSettle.Api.Errors;
 using SplitSettle.Api.Services;
+using System.Text.Json.Serialization;
 using SplitSettle.Core.Entities;
 using SplitSettle.Data;
 using Xunit;
@@ -15,18 +16,34 @@ public class LiveLlmEvaluationTests
 {
     private class EvalItem
     {
+        [JsonPropertyName("id")]
         public int Id { get; set; }
+
+        [JsonPropertyName("sentence")]
         public string Sentence { get; set; } = string.Empty;
+
+        [JsonPropertyName("is_valid")]
         public bool IsValid { get; set; }
+
+        [JsonPropertyName("expected")]
         public ExpectedDraft? Expected { get; set; }
+
+        [JsonPropertyName("note")]
         public string? Note { get; set; }
     }
 
     private class ExpectedDraft
     {
+        [JsonPropertyName("description")]
         public string Description { get; set; } = string.Empty;
+
+        [JsonPropertyName("amount")]
         public string Amount { get; set; } = string.Empty;
+
+        [JsonPropertyName("paid_by")]
         public string PaidBy { get; set; } = string.Empty;
+
+        [JsonPropertyName("split_among")]
         public List<string> SplitAmong { get; set; } = new();
     }
 
@@ -39,6 +56,12 @@ public class LiveLlmEvaluationTests
             .AddEnvironmentVariables()
             .AddUserSecrets<LiveLlmEvaluationTests>(optional: true)
             .Build();
+
+        var runLive = string.Equals(Environment.GetEnvironmentVariable("RUN_LIVE_LLM"), "true", StringComparison.OrdinalIgnoreCase);
+        if (!runLive)
+        {
+            return;
+        }
 
         var apiKey = config["Llm:ApiKey"]?.Trim()
                      ?? Environment.GetEnvironmentVariable("GEMINI_API_KEY")?.Trim()
@@ -65,7 +88,7 @@ public class LiveLlmEvaluationTests
 
         var provider = config["Llm:Provider"]?.Trim() ?? "Gemini";
         var isGroq = provider.Equals("Groq", StringComparison.OrdinalIgnoreCase);
-        var model = config["Llm:Model"]?.Trim() ?? (isGroq ? "llama-3.3-70b-versatile" : "gemini-2.0-flash");
+        var model = config["Llm:Model"]?.Trim() ?? (isGroq ? "llama-3.3-70b-versatile" : "gemini-3.5-flash-lite");
         const string promptVersion = "v1.0";
 
         var httpClientFactory = new SimpleHttpClientFactory();
@@ -151,6 +174,7 @@ public class LiveLlmEvaluationTests
             var sanitizedSentence = item.Sentence.Replace("|", "/");
             var sanitizedNote = note.Replace("|", "/");
             lines.Add($"| {item.Id} | {sanitizedSentence} | {(passed ? "PASS" : "FAIL")} | {sanitizedNote} |");
+            await Task.Delay(4000);
         }
 
         lines.Add("");
