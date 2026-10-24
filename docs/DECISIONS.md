@@ -31,3 +31,7 @@ When an amount cannot be divided evenly into whole cents, leftover cents are dis
 
 ## 10. Integration test isolation with dedicated database and unique group names (2026-10-24)
 Integration tests use a separate database named splitsettle_test on the same PostgreSQL container. SplitSettleApiFactory inherits WebApplicationFactory<Program> and applies migrations on startup via Database.MigrateAsync(), creating the test database if it does not already exist. To ensure test isolation and allow concurrent or out-of-order test execution without state pollution, tests never clear or delete other tests' rows. Instead, each test creates its own group with a globally unique name using Guid.NewGuid().
+
+## 11. Optional startup migrations via Database:MigrateOnStartup (2026-10-24)
+Applying migrations at application startup when Database:MigrateOnStartup is enabled provides a simple, self-contained deployment model for single-container hosting environments like Render or local Docker Compose. The trade-off is that startup migrations are not safe when running multiple replicas concurrently, because multiple instances might attempt schema modifications simultaneously. For SplitSettle's single-instance deployment, this trade-off is acceptable and eliminates the need for separate migration release pipelines.
+

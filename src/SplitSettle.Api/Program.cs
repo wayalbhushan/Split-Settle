@@ -7,6 +7,12 @@ using SplitSettle.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://+:{port}");
+}
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -20,7 +26,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("Default"),
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorCodesToAdd: null)));
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ILlmClient, LlmClient>();
@@ -50,10 +61,19 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
-if (app.Environment.IsDevelopment())
+var swaggerEnabled = app.Environment.IsDevelopment() ||
+                     app.Configuration.GetValue<bool>("Swagger:Enabled");
+if (swaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
 }
 
 app.UseHttpsRedirection();

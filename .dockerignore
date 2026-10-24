@@ -1,0 +1,10 @@
+bin/
+obj/
+node_modules/
+.env*
+reference/
+.git/
+client/
+docs/
+tests/
+*.log
