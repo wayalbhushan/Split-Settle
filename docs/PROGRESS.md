@@ -9,19 +9,19 @@
 - Needs from me: none
 
 ## Phase 3: Expenses, Balances, Settlements
-- Status: in progress
+- Status: done
 - Date: 2026-10-24
-- Test totals: 43 passed, 0 failed
-- Last commit hash: 
-- Notes: Starting Phase 3 implementation for expenses, balances, and settlements endpoints, input validation, transaction management, golden comparison, and integration tests.
+- Test totals: 51 passed, 0 failed
+- Last commit hash: pending
+- Notes: Implemented Expenses, Balances, and Settlements controllers, DTOs, scoped services, input validation, zero-sum precondition check, tools/golden/make_golden.py generator, 3 golden datasets, and verified exact match against real Django calculations.
 - Needs from me: none
 
 ## Phase 4: Complete the Integration Test Suite
-- Status: not started
-- Date: 
-- Test totals: 
+- Status: in progress
+- Date: 2026-10-24
+- Test totals: 51 passed, 0 failed
 - Last commit hash: 
-- Notes: 
+- Notes: Starting Phase 4 to port 4 Django API tests as real HTTP integration tests, create docs/TEST_MATRIX.md, add DB constraint tests, and execute 4 consecutive green test runs.
 - Needs from me: none
 
 ## Phase 5: React Client against the .NET API

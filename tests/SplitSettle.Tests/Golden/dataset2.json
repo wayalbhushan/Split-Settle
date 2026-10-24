@@ -1,0 +1,106 @@
+{
+  "name": "Golden Dataset 2",
+  "members": [
+    "Aarav",
+    "Bhavya",
+    "Chirag",
+    "Divya",
+    "Esha",
+    "Farhan"
+  ],
+  "expenses": [
+    {
+      "description": "Hotel",
+      "amount": "120.00",
+      "paid_by_name": "Aarav",
+      "split_among_names": [
+        "Aarav",
+        "Bhavya",
+        "Chirag"
+      ]
+    },
+    {
+      "description": "Museum",
+      "amount": "90.00",
+      "paid_by_name": "Bhavya",
+      "split_among_names": [
+        "Bhavya",
+        "Divya",
+        "Farhan"
+      ]
+    },
+    {
+      "description": "Activity",
+      "amount": "150.00",
+      "paid_by_name": "Esha",
+      "split_among_names": [
+        "Chirag",
+        "Divya",
+        "Esha",
+        "Farhan"
+      ]
+    },
+    {
+      "description": "Lunch",
+      "amount": "60.00",
+      "paid_by_name": "Chirag",
+      "split_among_names": [
+        "Aarav",
+        "Chirag"
+      ]
+    }
+  ],
+  "expected_balances": [
+    {
+      "member_name": "Aarav",
+      "balance": "50.00"
+    },
+    {
+      "member_name": "Bhavya",
+      "balance": "20.00"
+    },
+    {
+      "member_name": "Chirag",
+      "balance": "-47.50"
+    },
+    {
+      "member_name": "Divya",
+      "balance": "-67.50"
+    },
+    {
+      "member_name": "Esha",
+      "balance": "112.50"
+    },
+    {
+      "member_name": "Farhan",
+      "balance": "-67.50"
+    }
+  ],
+  "expected_settlements": [
+    {
+      "from_member_name": "Divya",
+      "to_member_name": "Esha",
+      "amount": "67.50"
+    },
+    {
+      "from_member_name": "Farhan",
+      "to_member_name": "Aarav",
+      "amount": "50.00"
+    },
+    {
+      "from_member_name": "Chirag",
+      "to_member_name": "Esha",
+      "amount": "45.00"
+    },
+    {
+      "from_member_name": "Farhan",
+      "to_member_name": "Bhavya",
+      "amount": "17.50"
+    },
+    {
+      "from_member_name": "Chirag",
+      "to_member_name": "Bhavya",
+      "amount": "2.50"
+    }
+  ]
+}

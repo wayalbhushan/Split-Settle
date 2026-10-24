@@ -23,6 +23,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<ISettlementService, SettlementService>();
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>();

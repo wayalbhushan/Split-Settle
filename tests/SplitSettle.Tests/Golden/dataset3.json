@@ -1,0 +1,241 @@
+{
+  "name": "Golden Dataset 3",
+  "members": [
+    "Member_1",
+    "Member_2",
+    "Member_3",
+    "Member_4",
+    "Member_5",
+    "Member_6",
+    "Member_7",
+    "Member_8",
+    "Member_9",
+    "Member_10"
+  ],
+  "expenses": [
+    {
+      "description": "Villa Rent",
+      "amount": "1000.00",
+      "paid_by_name": "Member_1",
+      "split_among_names": [
+        "Member_1",
+        "Member_2",
+        "Member_3",
+        "Member_4",
+        "Member_5",
+        "Member_6",
+        "Member_7",
+        "Member_8",
+        "Member_9",
+        "Member_10"
+      ]
+    },
+    {
+      "description": "Groceries Day 1",
+      "amount": "234.50",
+      "paid_by_name": "Member_2",
+      "split_among_names": [
+        "Member_1",
+        "Member_2",
+        "Member_3",
+        "Member_4",
+        "Member_5"
+      ]
+    },
+    {
+      "description": "Groceries Day 2",
+      "amount": "180.25",
+      "paid_by_name": "Member_3",
+      "split_among_names": [
+        "Member_4",
+        "Member_5",
+        "Member_6",
+        "Member_7",
+        "Member_8"
+      ]
+    },
+    {
+      "description": "Fuel Car 1",
+      "amount": "85.00",
+      "paid_by_name": "Member_4",
+      "split_among_names": [
+        "Member_1",
+        "Member_2",
+        "Member_3",
+        "Member_4"
+      ]
+    },
+    {
+      "description": "Fuel Car 2",
+      "amount": "95.00",
+      "paid_by_name": "Member_5",
+      "split_among_names": [
+        "Member_5",
+        "Member_6",
+        "Member_7",
+        "Member_8"
+      ]
+    },
+    {
+      "description": "Drinks",
+      "amount": "320.00",
+      "paid_by_name": "Member_6",
+      "split_among_names": [
+        "Member_1",
+        "Member_2",
+        "Member_3",
+        "Member_4",
+        "Member_5",
+        "Member_6",
+        "Member_7",
+        "Member_8",
+        "Member_9",
+        "Member_10"
+      ]
+    },
+    {
+      "description": "Sightseeing Tickets",
+      "amount": "450.00",
+      "paid_by_name": "Member_7",
+      "split_among_names": [
+        "Member_2",
+        "Member_4",
+        "Member_6",
+        "Member_8",
+        "Member_10"
+      ]
+    },
+    {
+      "description": "BBQ Night",
+      "amount": "275.75",
+      "paid_by_name": "Member_8",
+      "split_among_names": [
+        "Member_1",
+        "Member_2",
+        "Member_3",
+        "Member_4",
+        "Member_5",
+        "Member_6",
+        "Member_7",
+        "Member_8",
+        "Member_9",
+        "Member_10"
+      ]
+    },
+    {
+      "description": "Beach Games",
+      "amount": "50.00",
+      "paid_by_name": "Member_9",
+      "split_among_names": [
+        "Member_9",
+        "Member_10"
+      ]
+    },
+    {
+      "description": "Airport Shuttles",
+      "amount": "200.00",
+      "paid_by_name": "Member_10",
+      "split_among_names": [
+        "Member_1",
+        "Member_2",
+        "Member_3",
+        "Member_4",
+        "Member_5",
+        "Member_6",
+        "Member_7",
+        "Member_8",
+        "Member_9",
+        "Member_10"
+      ]
+    }
+  ],
+  "expected_balances": [
+    {
+      "member_name": "Member_1",
+      "balance": "752.27"
+    },
+    {
+      "member_name": "Member_2",
+      "balance": "-103.23"
+    },
+    {
+      "member_name": "Member_3",
+      "balance": "-67.48"
+    },
+    {
+      "member_name": "Member_4",
+      "balance": "-288.78"
+    },
+    {
+      "member_name": "Member_5",
+      "balance": "-191.28"
+    },
+    {
+      "member_name": "Member_6",
+      "balance": "-9.37"
+    },
+    {
+      "member_name": "Member_7",
+      "balance": "210.63"
+    },
+    {
+      "member_name": "Member_8",
+      "balance": "-53.62"
+    },
+    {
+      "member_name": "Member_9",
+      "balance": "-154.57"
+    },
+    {
+      "member_name": "Member_10",
+      "balance": "-94.57"
+    }
+  ],
+  "expected_settlements": [
+    {
+      "from_member_name": "Member_4",
+      "to_member_name": "Member_1",
+      "amount": "288.78"
+    },
+    {
+      "from_member_name": "Member_5",
+      "to_member_name": "Member_1",
+      "amount": "191.28"
+    },
+    {
+      "from_member_name": "Member_9",
+      "to_member_name": "Member_1",
+      "amount": "154.57"
+    },
+    {
+      "from_member_name": "Member_2",
+      "to_member_name": "Member_7",
+      "amount": "103.23"
+    },
+    {
+      "from_member_name": "Member_10",
+      "to_member_name": "Member_1",
+      "amount": "94.57"
+    },
+    {
+      "from_member_name": "Member_3",
+      "to_member_name": "Member_7",
+      "amount": "67.48"
+    },
+    {
+      "from_member_name": "Member_8",
+      "to_member_name": "Member_7",
+      "amount": "39.92"
+    },
+    {
+      "from_member_name": "Member_8",
+      "to_member_name": "Member_1",
+      "amount": "13.70"
+    },
+    {
+      "from_member_name": "Member_6",
+      "to_member_name": "Member_1",
+      "amount": "9.37"
+    }
+  ]
+}

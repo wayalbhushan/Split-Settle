@@ -1,0 +1,66 @@
+{
+  "name": "Golden Dataset 1",
+  "members": [
+    "Aarav",
+    "Bhavya",
+    "Chirag"
+  ],
+  "expenses": [
+    {
+      "description": "Dinner",
+      "amount": "100.00",
+      "paid_by_name": "Aarav",
+      "split_among_names": [
+        "Aarav",
+        "Bhavya",
+        "Chirag"
+      ]
+    },
+    {
+      "description": "Cab",
+      "amount": "50.00",
+      "paid_by_name": "Bhavya",
+      "split_among_names": [
+        "Aarav",
+        "Bhavya",
+        "Chirag"
+      ]
+    },
+    {
+      "description": "Groceries",
+      "amount": "25.01",
+      "paid_by_name": "Chirag",
+      "split_among_names": [
+        "Aarav",
+        "Bhavya",
+        "Chirag"
+      ]
+    }
+  ],
+  "expected_balances": [
+    {
+      "member_name": "Aarav",
+      "balance": "41.65"
+    },
+    {
+      "member_name": "Bhavya",
+      "balance": "-8.34"
+    },
+    {
+      "member_name": "Chirag",
+      "balance": "-33.31"
+    }
+  ],
+  "expected_settlements": [
+    {
+      "from_member_name": "Chirag",
+      "to_member_name": "Aarav",
+      "amount": "33.31"
+    },
+    {
+      "from_member_name": "Bhavya",
+      "to_member_name": "Aarav",
+      "amount": "8.34"
+    }
+  ]
+}
