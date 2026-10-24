@@ -1,19 +1,19 @@
 # Project Progress
 
 ## Phase 2: Groups and Members API
-- Status: in progress
+- Status: done
 - Date: 2026-10-24
-- Test totals: 32 passed, 0 failed
-- Last commit hash: 8072d5c
-- Notes: Starting Phase 2 implementation for groups and members endpoints, DTOs, services, validation, exception handling, and WebApplicationFactory integration test suite.
+- Test totals: 43 passed, 0 failed
+- Last commit hash: pending
+- Notes: Implemented Groups and Members controllers, DTOs, scoped services, ProblemDetails global exception handler, Decision 10, and WebApplicationFactory integration test suite.
 - Needs from me: none
 
 ## Phase 3: Expenses, Balances, Settlements
-- Status: not started
-- Date: 
-- Test totals: 
+- Status: in progress
+- Date: 2026-10-24
+- Test totals: 43 passed, 0 failed
 - Last commit hash: 
-- Notes: 
+- Notes: Starting Phase 3 implementation for expenses, balances, and settlements endpoints, input validation, transaction management, golden comparison, and integration tests.
 - Needs from me: none
 
 ## Phase 4: Complete the Integration Test Suite

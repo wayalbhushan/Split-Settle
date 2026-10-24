@@ -29,5 +29,5 @@ The React client relies on nested resource routes with trailing slashes (such as
 ## 9. Leftover cents distributed in ascending member ID order (2026-10-24)
 When an amount cannot be divided evenly into whole cents, leftover cents are distributed one by one to members in ascending order of their IDs. In the original SplitLedger Django codebase, members were queried using group.members.filter(id__in=split_among_ids) without an explicit order_by clause; while PostgreSQL typically returned rows by ascending primary key in simple queries, it was not strictly guaranteed. Explicitly sorting by member ID in SplitSettle ensures rounding distribution is completely deterministic and reproducible across all platforms.
 
-
-
+## 10. Integration test isolation with dedicated database and unique group names (2026-10-24)
+Integration tests use a separate database named splitsettle_test on the same PostgreSQL container. SplitSettleApiFactory inherits WebApplicationFactory<Program> and applies migrations on startup via Database.MigrateAsync(), creating the test database if it does not already exist. To ensure test isolation and allow concurrent or out-of-order test execution without state pollution, tests never clear or delete other tests' rows. Instead, each test creates its own group with a globally unique name using Guid.NewGuid().
