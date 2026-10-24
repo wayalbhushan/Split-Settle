@@ -80,14 +80,19 @@ public class SplitCalculatorTests
     }
 
     [Fact]
-    public void Split_AmountWithThreeDecimals_TruncatesOrRoundsToWholeCents()
+    public void Split_AmountWithMoreThanTwoDecimalPlaces_ThrowsArgumentException()
     {
         var memberIds = new List<int> { 1, 2 };
-        // 10.005m truncated/rounded to 10.00m or 10.01m
-        var shares = SplitCalculator.Split(10.005m, memberIds);
+        Assert.Throws<ArgumentException>(() => SplitCalculator.Split(10.005m, memberIds));
+    }
 
+    [Fact]
+    public void Split_AmountWithTrailingZeros_DoesNotThrow()
+    {
+        var memberIds = new List<int> { 1, 2 };
+        var shares = SplitCalculator.Split(10.000m, memberIds);
         Assert.Equal(2, shares.Count);
-        Assert.Equal(shares.Values.Sum(), Math.Round(10.005m, 2));
+        Assert.Equal(10.00m, shares.Values.Sum());
     }
 
     [Fact]

@@ -26,4 +26,8 @@ Deleting a member who is an expense payer or has a split must be prohibited to p
 ## 8. Preserving SplitLedger route hierarchy, trailing slashes, and deterministic tie-breaking (2026-10-24)
 The React client relies on nested resource routes with trailing slashes (such as `/api/groups/{id}/expenses/`). To keep the React client completely unmodified, ASP.NET Core controllers will adopt these nested routes and trailing slashes. In addition, the settlement algorithm enforces deterministic tie-breaking by member ID to match the original heap behavior.
 
+## 9. Leftover cents distributed in ascending member ID order (2026-10-24)
+When an amount cannot be divided evenly into whole cents, leftover cents are distributed one by one to members in ascending order of their IDs. In the original SplitLedger Django codebase, members were queried using group.members.filter(id__in=split_among_ids) without an explicit order_by clause; while PostgreSQL typically returned rows by ascending primary key in simple queries, it was not strictly guaranteed. Explicitly sorting by member ID in SplitSettle ensures rounding distribution is completely deterministic and reproducible across all platforms.
+
+
 

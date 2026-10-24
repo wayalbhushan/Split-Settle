@@ -77,6 +77,7 @@ public class SettlementCalculatorTests
     {
         var scenarios = new List<Dictionary<int, decimal>>
         {
+            new() { { 1, 0m }, { 2, 0m } }, // 0 non-zero members -> 0 transfers
             new() { { 1, 100m }, { 2, -50m }, { 3, -50m } }, // 3 members -> <= 2 transfers
             new() { { 1, 150m }, { 2, -50m }, { 3, -50m }, { 4, -50m } }, // 4 members -> <= 3 transfers
             new() { { 1, 100m }, { 2, 50m }, { 3, -75m }, { 4, -75m } }, // 4 members -> <= 3 transfers
@@ -86,9 +87,11 @@ public class SettlementCalculatorTests
         foreach (var balances in scenarios)
         {
             int nonZeroMembers = balances.Values.Count(b => Math.Abs(b) > 0.001m);
+            int maxAllowedTransfers = nonZeroMembers == 0 ? 0 : nonZeroMembers - 1;
             var settlements = SettlementCalculator.Settle(balances);
 
-            Assert.True(settlements.Count <= nonZeroMembers - 1);
+            Assert.True(settlements.Count <= maxAllowedTransfers,
+                $"Expected at most {maxAllowedTransfers} transfers for {nonZeroMembers} non-zero members, but got {settlements.Count}.");
         }
     }
 

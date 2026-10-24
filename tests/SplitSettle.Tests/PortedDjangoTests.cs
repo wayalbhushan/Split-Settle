@@ -192,6 +192,7 @@ public class PortedDjangoTests
     }
 
     // 6. test_create_expense_via_api
+    // Note: Ported from Django APILedgerTests; this unit test checks the calculator logic only.
     [Fact]
     public void Test6_CreateExpense_SubsetSplitsDivideEquallyAmongChosenMembers()
     {
@@ -205,6 +206,7 @@ public class PortedDjangoTests
     }
 
     // 7. test_get_balances_api
+    // Note: Ported from Django APILedgerTests; this unit test checks the calculator logic only.
     [Fact]
     public void Test7_GetBalances_CalculatesNetBalancesCorrectlyAcrossAllMembers()
     {
@@ -233,6 +235,7 @@ public class PortedDjangoTests
     }
 
     // 8. test_get_settlements_api
+    // Note: Ported from Django APILedgerTests; this unit test checks the calculator logic only.
     [Fact]
     public void Test8_GetSettlements_ProducesDeterministicTransfersToSingleCreditor()
     {
@@ -255,6 +258,7 @@ public class PortedDjangoTests
     }
 
     // 9. test_invalid_expense_creation
+    // Note: Ported from Django APILedgerTests; this unit test checks the calculator logic only.
     [Fact]
     public void Test9_InvalidExpense_ThrowsForNegativeAmountOrEmptySplitMembers()
     {
