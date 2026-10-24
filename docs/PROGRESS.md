@@ -44,7 +44,7 @@
 - Status: done
 - Date: 2026-10-24
 - Test totals: 75 passed, 0 failed
-- Last commit hash: pending
+- Last commit hash: 81b8527
 - Notes: Implemented multi-stage Dockerfile with non-root user, .dockerignore, startup migrations with Decision 11, EF Core transient error retry, GitHub Actions ci.yml workflow, updated README with architecture diagram, and verified container locally against database answering /health and /api/groups/.
 - Needs from me: GitHub repository URL (at stop gate S4)
 
