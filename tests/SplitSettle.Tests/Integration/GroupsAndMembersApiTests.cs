@@ -6,7 +6,8 @@ using System.Text.Json;
 using SplitSettle.Api.DTOs;
 using Xunit;
 
-public class GroupsAndMembersApiTests : IClassFixture<SplitSettleApiFactory>
+[Collection("ApiTests")]
+public class GroupsAndMembersApiTests
 {
     private readonly HttpClient _client;
     private static readonly JsonSerializerOptions JsonOptions = new()

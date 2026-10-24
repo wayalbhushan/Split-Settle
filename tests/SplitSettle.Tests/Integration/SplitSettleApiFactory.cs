@@ -9,7 +9,7 @@ using Xunit;
 
 public class SplitSettleApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private static readonly object Lock = new();
+    private static readonly SemaphoreSlim Semaphore = new(1, 1);
     private static bool _migrated;
 
     public static string GetTestConnectionString()
@@ -77,18 +77,20 @@ public class SplitSettleApiFactory : WebApplicationFactory<Program>, IAsyncLifet
 
     public async Task InitializeAsync()
     {
-        lock (Lock)
+        await Semaphore.WaitAsync();
+        try
         {
             if (_migrated) return;
-        }
 
-        using var scope = Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await context.Database.MigrateAsync();
+            using var scope = Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await context.Database.MigrateAsync();
 
-        lock (Lock)
-        {
             _migrated = true;
+        }
+        finally
+        {
+            Semaphore.Release();
         }
     }
 

@@ -17,19 +17,19 @@
 - Needs from me: none
 
 ## Phase 4: Complete the Integration Test Suite
-- Status: in progress
+- Status: done
 - Date: 2026-10-24
-- Test totals: 51 passed, 0 failed
-- Last commit hash: 
-- Notes: Starting Phase 4 to port 4 Django API tests as real HTTP integration tests, create docs/TEST_MATRIX.md, add DB constraint tests, and execute 4 consecutive green test runs.
+- Test totals: 62 passed, 0 failed
+- Last commit hash: pending
+- Notes: Ported 4 Django API tests as real HTTP integration tests, created docs/TEST_MATRIX.md, added database cascade and foreign key constraint tests, and verified 4 consecutive clean green test runs including after test database drop.
 - Needs from me: none
 
 ## Phase 5: React Client against the .NET API
-- Status: not started
-- Date: 
-- Test totals: 
+- Status: in progress
+- Date: 2026-10-24
+- Test totals: 62 passed, 0 failed
 - Last commit hash: 
-- Notes: 
+- Notes: Starting Phase 5 to configure CORS, wire API URL, verify React client builds, test all client calls against live .NET API, create docs/CLIENT_CALLS.md, and run browser flow.
 - Needs from me: none
 
 ## Phase 6: Generative AI Parse Feature

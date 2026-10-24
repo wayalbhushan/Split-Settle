@@ -6,7 +6,8 @@ using System.Text.Json;
 using SplitSettle.Api.DTOs;
 using Xunit;
 
-public class ExpensesAndSettlementsApiTests : IClassFixture<SplitSettleApiFactory>
+[Collection("ApiTests")]
+public class ExpensesAndSettlementsApiTests
 {
     private readonly HttpClient _client;
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -192,5 +193,55 @@ public class ExpensesAndSettlementsApiTests : IClassFixture<SplitSettleApiFactor
         Assert.Equal(2, settlements.Count);
         Assert.All(settlements, s => Assert.Equal("Aarav", s.ToMemberName));
         Assert.All(settlements, s => Assert.Equal("30.00", s.Amount));
+    }
+
+    [Fact]
+    public async Task ExpenseEndpoints_NonExistentGroupOrExpense_Returns404NotFound()
+    {
+        // GET expenses for missing group
+        var getExpRes = await _client.GetAsync("/api/groups/999999/expenses/");
+        Assert.Equal(HttpStatusCode.NotFound, getExpRes.StatusCode);
+
+        // POST expense for missing group
+        var postExpRes = await _client.PostAsJsonAsync("/api/groups/999999/expenses/",
+            new CreateExpenseRequest("Dinner", "50.00", 1, new List<int> { 1 }), JsonOptions);
+        Assert.Equal(HttpStatusCode.NotFound, postExpRes.StatusCode);
+
+        // PUT expense for missing group
+        var putExpRes = await _client.PutAsJsonAsync("/api/groups/999999/expenses/1/",
+            new UpdateExpenseRequest("Dinner", "50.00", 1, new List<int> { 1 }), JsonOptions);
+        Assert.Equal(HttpStatusCode.NotFound, putExpRes.StatusCode);
+
+        // DELETE expense for missing group
+        var delExpRes = await _client.DeleteAsync("/api/groups/999999/expenses/1/");
+        Assert.Equal(HttpStatusCode.NotFound, delExpRes.StatusCode);
+
+        // GET balances for missing group
+        var balRes = await _client.GetAsync("/api/groups/999999/balances/");
+        Assert.Equal(HttpStatusCode.NotFound, balRes.StatusCode);
+
+        // GET settlements for missing group
+        var setRes = await _client.GetAsync("/api/groups/999999/settlements/");
+        Assert.Equal(HttpStatusCode.NotFound, setRes.StatusCode);
+    }
+
+    [Fact]
+    public async Task PutExpense_WithInvalidData_Returns400BadRequest()
+    {
+        var groupRes = await _client.PostAsJsonAsync("/api/groups/", new CreateGroupRequest($"G-PutVal-{Guid.NewGuid():N}"), JsonOptions);
+        var group = await groupRes.Content.ReadFromJsonAsync<GroupResponse>(JsonOptions);
+        Assert.NotNull(group);
+
+        var m1 = await (await _client.PostAsJsonAsync($"/api/groups/{group.Id}/members/", new CreateMemberRequest("M1"), JsonOptions)).Content.ReadFromJsonAsync<MemberResponse>(JsonOptions);
+        Assert.NotNull(m1);
+
+        var exp = await (await _client.PostAsJsonAsync($"/api/groups/{group.Id}/expenses/",
+            new CreateExpenseRequest("Dinner", "50.00", m1.Id, new List<int> { m1.Id }), JsonOptions)).Content.ReadFromJsonAsync<ExpenseResponse>(JsonOptions);
+        Assert.NotNull(exp);
+
+        // Invalid negative amount on update
+        var putRes = await _client.PutAsJsonAsync($"/api/groups/{group.Id}/expenses/{exp.Id}/",
+            new UpdateExpenseRequest("Dinner", "-10.00", m1.Id, new List<int> { m1.Id }), JsonOptions);
+        Assert.Equal(HttpStatusCode.BadRequest, putRes.StatusCode);
     }
 }
