@@ -35,3 +35,6 @@ Integration tests use a separate database named splitsettle_test on the same Pos
 ## 11. Optional startup migrations via Database:MigrateOnStartup (2026-10-24)
 Applying migrations at application startup when Database:MigrateOnStartup is enabled provides a simple, self-contained deployment model for single-container hosting environments like Render or local Docker Compose. The trade-off is that startup migrations are not safe when running multiple replicas concurrently, because multiple instances might attempt schema modifications simultaneously. For SplitSettle's single-instance deployment, this trade-off is acceptable and eliminates the need for separate migration release pipelines.
 
+## 12. Deduplicating duplicate member names in parse split_among (2026-10-24)
+When natural language extraction returns duplicate member names in split_among (for instance, if an LLM repeats a name or a user says "split between Aarav and Aarav"), ParseService deduplicates them to distinct group member IDs rather than rejecting the request. This decision mirrors ExpenseService.ValidateExpenseInputs, which deduplicates member IDs via .Distinct(). Duplicate names represent the same financial participant, so deduplication aligns with core expense semantics without penalizing valid intent.
+

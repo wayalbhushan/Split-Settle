@@ -37,11 +37,10 @@ public class LlmClient : ILlmClient
         }
 
         var isGroq = provider.Equals("Groq", StringComparison.OrdinalIgnoreCase);
-        var defaultModel = isGroq ? "llama-3.3-70b-versatile" : "gemini-3.5-flash-lite";
         var model = _configuration["Llm:Model"]?.Trim();
         if (string.IsNullOrWhiteSpace(model))
         {
-            model = defaultModel;
+            throw new LlmNotConfiguredException("AI parse service is not configured. A model is required.");
         }
 
         var client = _httpClientFactory.CreateClient();

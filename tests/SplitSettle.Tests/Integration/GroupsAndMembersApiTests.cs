@@ -227,4 +227,94 @@ public class GroupsAndMembersApiTests
         var response = await _client.GetAsync($"/api/groups/{group.Id}/members/999999/");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
+
+    [Fact]
+    public async Task GetMembers_ExistingGroup_ReturnsAllMembers()
+    {
+        var groupRes = await _client.PostAsJsonAsync("/api/groups/", new CreateGroupRequest($"G-Members-{Guid.NewGuid():N}"), JsonOptions);
+        var group = await groupRes.Content.ReadFromJsonAsync<GroupResponse>(JsonOptions);
+        Assert.NotNull(group);
+
+        await _client.PostAsJsonAsync($"/api/groups/{group.Id}/members/", new CreateMemberRequest("Member1"), JsonOptions);
+        await _client.PostAsJsonAsync($"/api/groups/{group.Id}/members/", new CreateMemberRequest("Member2"), JsonOptions);
+
+        var response = await _client.GetAsync($"/api/groups/{group.Id}/members/");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var members = await response.Content.ReadFromJsonAsync<List<MemberResponse>>(JsonOptions);
+        Assert.NotNull(members);
+        Assert.Equal(2, members.Count);
+        Assert.Contains(members, m => m.Name == "Member1" && m.Group == group.Id);
+        Assert.Contains(members, m => m.Name == "Member2" && m.Group == group.Id);
+
+        var rawJson = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(rawJson);
+        var firstElem = doc.RootElement[0];
+        Assert.True(firstElem.TryGetProperty("id", out _));
+        Assert.True(firstElem.TryGetProperty("name", out _));
+        Assert.True(firstElem.TryGetProperty("group", out _));
+    }
+
+    [Fact]
+    public async Task GetMembers_NonExistentGroup_Returns404NotFound()
+    {
+        var response = await _client.GetAsync("/api/groups/999999/members/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostMember_WithValidName_Returns201CreatedAndCorrectSnakeCaseJson()
+    {
+        var groupRes = await _client.PostAsJsonAsync("/api/groups/", new CreateGroupRequest($"G-PostMem-{Guid.NewGuid():N}"), JsonOptions);
+        var group = await groupRes.Content.ReadFromJsonAsync<GroupResponse>(JsonOptions);
+        Assert.NotNull(group);
+
+        var response = await _client.PostAsJsonAsync($"/api/groups/{group.Id}/members/", new CreateMemberRequest("Ananya"), JsonOptions);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var created = await response.Content.ReadFromJsonAsync<MemberResponse>(JsonOptions);
+        Assert.NotNull(created);
+        Assert.True(created.Id > 0);
+        Assert.Equal("Ananya", created.Name);
+        Assert.Equal(group.Id, created.Group);
+
+        var rawJson = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(rawJson);
+        var root = doc.RootElement;
+        Assert.True(root.TryGetProperty("id", out _));
+        Assert.True(root.TryGetProperty("name", out _));
+        Assert.True(root.TryGetProperty("group", out _));
+    }
+
+    [Fact]
+    public async Task GetMemberDetail_ExistingMemberWithExpenses_ReturnsCalculatedBalanceAndExpenses()
+    {
+        var groupRes = await _client.PostAsJsonAsync("/api/groups/", new CreateGroupRequest($"G-DetailExp-{Guid.NewGuid():N}"), JsonOptions);
+        var group = await groupRes.Content.ReadFromJsonAsync<GroupResponse>(JsonOptions);
+        Assert.NotNull(group);
+
+        var m1Res = await _client.PostAsJsonAsync($"/api/groups/{group.Id}/members/", new CreateMemberRequest("Aarav"), JsonOptions);
+        var m1 = await m1Res.Content.ReadFromJsonAsync<MemberResponse>(JsonOptions);
+        var m2Res = await _client.PostAsJsonAsync($"/api/groups/{group.Id}/members/", new CreateMemberRequest("Bhavya"), JsonOptions);
+        var m2 = await m2Res.Content.ReadFromJsonAsync<MemberResponse>(JsonOptions);
+        Assert.NotNull(m1);
+        Assert.NotNull(m2);
+
+        var expReq = new CreateExpenseRequest("Dinner", "100.00", m1.Id, new List<int> { m1.Id, m2.Id });
+        await _client.PostAsJsonAsync($"/api/groups/{group.Id}/expenses/", expReq, JsonOptions);
+
+        var response = await _client.GetAsync($"/api/groups/{group.Id}/members/{m1.Id}/");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var detail = await response.Content.ReadFromJsonAsync<MemberDetailResponse>(JsonOptions);
+        Assert.NotNull(detail);
+        Assert.Equal(m1.Id, detail.MemberId);
+        Assert.Equal("Aarav", detail.MemberName);
+        Assert.Equal("50.00", detail.Balance);
+        Assert.Single(detail.PaidExpenses);
+        Assert.Single(detail.OwedExpenses);
+        Assert.Equal("Dinner", detail.PaidExpenses[0].Description);
+        Assert.Equal("100.00", detail.PaidExpenses[0].Amount);
+        Assert.Equal("50.00", detail.OwedExpenses[0].ShareAmount);
+    }
 }

@@ -43,6 +43,11 @@ public class ParseService : IParseService
             throw new ValidationException("Sentence must not exceed 300 characters.");
         }
 
+        if (System.Text.RegularExpressions.Regex.IsMatch(trimmedSentence, @"(?<=\s|^)-\d+(\.\d+)?"))
+        {
+            throw new ValidationException("Amount must be greater than zero.");
+        }
+
         var groupExists = await _context.Groups
             .AnyAsync(g => g.Id == groupId, cancellationToken);
         if (!groupExists)
@@ -98,12 +103,12 @@ public class ParseService : IParseService
         var matchedSplitMembers = new List<SplitSettle.Core.Entities.Member>();
         foreach (var participantName in extraction.SplitAmong)
         {
-            if (string.IsNullOrWhiteSpace(participantName))
+            var trimmedName = participantName?.Trim();
+            if (string.IsNullOrWhiteSpace(trimmedName))
             {
-                continue;
+                throw new ValidationException("Member name in split list cannot be empty.");
             }
 
-            var trimmedName = participantName.Trim();
             var match = members.FirstOrDefault(m => string.Equals(m.Name.Trim(), trimmedName, StringComparison.OrdinalIgnoreCase));
             if (match is null)
             {
@@ -227,7 +232,7 @@ Instructions:
                     foreach (var item in saElem.EnumerateArray())
                     {
                         var val = item.GetString();
-                        if (!string.IsNullOrWhiteSpace(val))
+                        if (val != null)
                         {
                             splitAmong.Add(val);
                         }

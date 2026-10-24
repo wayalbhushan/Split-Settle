@@ -179,7 +179,31 @@ public class ParseExpenseApiTests
     }
 
     [Fact]
-    public async Task Parse_UnknownMemberInSplitAmong_Returns400ProblemDetails()
+    public async Task Parse_UnknownNameAloneInSplitAmong_Returns400ProblemDetails()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("""
+        {
+            "description": "Lunch",
+            "amount": 500,
+            "paid_by": "Rahul",
+            "split_among": ["UnknownUser"]
+        }
+        """));
+        var (groupId, _, _, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Lunch 500 paid by Rahul split with UnknownUser"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(JsonOptions);
+        Assert.NotNull(problem);
+        Assert.Contains("Unknown member 'UnknownUser'", problem.Detail);
+    }
+
+    [Fact]
+    public async Task Parse_UnknownNameMixedWithValidInSplitAmong_Returns400ProblemDetails()
     {
         var client = CreateClientWithLlm(_ => Task.FromResult("""
         {
@@ -203,12 +227,39 @@ public class ParseExpenseApiTests
     }
 
     [Fact]
-    public async Task Parse_NegativeAmount_Returns400ProblemDetails()
+    public async Task Parse_DuplicateNamesInSplitAmong_DedupesSuccessfully()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("""
+        {
+            "description": "Coffee",
+            "amount": 100.00,
+            "paid_by": "Rahul",
+            "split_among": ["Rahul", "Rahul", "Priya"]
+        }
+        """));
+        var (groupId, m1Id, m2Id, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Coffee 100 paid by Rahul split between Rahul and Priya"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var draft = await response.Content.ReadFromJsonAsync<ParsedExpenseDraft>(JsonOptions);
+        Assert.NotNull(draft);
+        Assert.Equal(2, draft.SplitAmong.Count);
+        Assert.Contains(m1Id, draft.SplitAmong);
+        Assert.Contains(m2Id, draft.SplitAmong);
+        Assert.Equal(2, draft.SplitAmongNames.Count);
+    }
+
+    [Fact]
+    public async Task Parse_NegativeAmountMinus500_Returns400ProblemDetails()
     {
         var client = CreateClientWithLlm(_ => Task.FromResult("""
         {
             "description": "Refund",
-            "amount": -50.00,
+            "amount": -500,
             "paid_by": "Rahul",
             "split_among": ["Rahul", "Priya"]
         }
@@ -217,7 +268,31 @@ public class ParseExpenseApiTests
 
         var response = await client.PostAsJsonAsync(
             $"/api/groups/{groupId}/expenses/parse/",
-            new ParseExpenseRequest("Refund -50 paid by Rahul"),
+            new ParseExpenseRequest("Refund -500 paid by Rahul"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(JsonOptions);
+        Assert.NotNull(problem);
+        Assert.Contains("greater than zero", problem.Detail);
+    }
+
+    [Fact]
+    public async Task Parse_ZeroAmount_Returns400ProblemDetails()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("""
+        {
+            "description": "Free snack",
+            "amount": 0,
+            "paid_by": "Rahul",
+            "split_among": ["Rahul", "Priya"]
+        }
+        """));
+        var (groupId, _, _, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Free snack 0 paid by Rahul"),
             JsonOptions);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -341,5 +416,23 @@ public class ParseExpenseApiTests
         Assert.NotNull(problem);
         Assert.Equal(503, problem.Status);
         Assert.Contains("AI parse service is not configured", problem.Detail);
+    }
+
+    [Fact]
+    public async Task Parse_NoModelConfigured_Returns503ProblemDetails()
+    {
+        var client = CreateClientWithLlm(_ => throw new LlmNotConfiguredException("AI parse service is not configured. A model is required."));
+        var (groupId, _, _, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Dinner 500 paid by Rahul"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(JsonOptions);
+        Assert.NotNull(problem);
+        Assert.Equal(503, problem.Status);
+        Assert.Contains("A model is required", problem.Detail);
     }
 }

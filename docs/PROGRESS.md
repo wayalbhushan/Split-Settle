@@ -48,6 +48,14 @@
 - Notes: Implemented multi-stage Dockerfile with non-root user, .dockerignore, startup migrations with Decision 11, EF Core transient error retry, GitHub Actions ci.yml workflow, updated README with architecture diagram, and verified container locally against database answering /health and /api/groups/.
 - Needs from me: GitHub repository URL (at stop gate S4)
 
+## Pre-Phase 8 Fixes
+- Status: done
+- Date: 2026-10-24
+- Test totals: 84 passed, 0 failed, 0 skipped
+- Last commit hash: c167464
+- Notes: Rebuilt docs/TEST_MATRIX.md honestly with dedicated tests for members list, POST member, member detail with expenses, and expenses list, plus 502/503 columns. Updated ParseService to reject negative amounts in sentence, reject empty/whitespace member names, and deduplicate duplicate member names in split_among (Decision 12). Added fake client tests for unknown name alone, unknown name mixed, duplicate deduping, amount -500, amount 0, and no model configured (503). Ran live eval run 2 in docs/AI_EVAL.md achieving 19/20 (95.0%) with updated sentence 20 rule. Verified zero secrets in git repository.
+- Needs from me: none
+
 ## Phase 8: Deployment
 - Status: not started
 - Date: 

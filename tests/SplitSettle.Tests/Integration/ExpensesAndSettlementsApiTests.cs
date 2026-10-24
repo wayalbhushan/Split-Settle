@@ -244,4 +244,45 @@ public class ExpensesAndSettlementsApiTests
             new UpdateExpenseRequest("Dinner", "-10.00", m1.Id, new List<int> { m1.Id }), JsonOptions);
         Assert.Equal(HttpStatusCode.BadRequest, putRes.StatusCode);
     }
+
+    [Fact]
+    public async Task GetExpenses_ExistingGroupWithExpenses_ReturnsAllExpensesList()
+    {
+        var groupRes = await _client.PostAsJsonAsync("/api/groups/", new CreateGroupRequest($"G-GetExps-{Guid.NewGuid():N}"), JsonOptions);
+        var group = await groupRes.Content.ReadFromJsonAsync<GroupResponse>(JsonOptions);
+        Assert.NotNull(group);
+
+        var m1Res = await _client.PostAsJsonAsync($"/api/groups/{group.Id}/members/", new CreateMemberRequest("Aarav"), JsonOptions);
+        var m1 = await m1Res.Content.ReadFromJsonAsync<MemberResponse>(JsonOptions);
+        var m2Res = await _client.PostAsJsonAsync($"/api/groups/{group.Id}/members/", new CreateMemberRequest("Bhavya"), JsonOptions);
+        var m2 = await m2Res.Content.ReadFromJsonAsync<MemberResponse>(JsonOptions);
+        Assert.NotNull(m1);
+        Assert.NotNull(m2);
+
+        await _client.PostAsJsonAsync($"/api/groups/{group.Id}/expenses/",
+            new CreateExpenseRequest("Lunch", "40.00", m1.Id, new List<int> { m1.Id, m2.Id }), JsonOptions);
+        await _client.PostAsJsonAsync($"/api/groups/{group.Id}/expenses/",
+            new CreateExpenseRequest("Dinner", "80.00", m2.Id, new List<int> { m1.Id, m2.Id }), JsonOptions);
+
+        var response = await _client.GetAsync($"/api/groups/{group.Id}/expenses/");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var expenses = await response.Content.ReadFromJsonAsync<List<ExpenseResponse>>(JsonOptions);
+        Assert.NotNull(expenses);
+        Assert.Equal(2, expenses.Count);
+        Assert.Contains(expenses, e => e.Description == "Lunch" && e.Amount == "40.00");
+        Assert.Contains(expenses, e => e.Description == "Dinner" && e.Amount == "80.00");
+
+        var rawJson = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(rawJson);
+        var first = doc.RootElement[0];
+        Assert.True(first.TryGetProperty("id", out _));
+        Assert.True(first.TryGetProperty("group", out _));
+        Assert.True(first.TryGetProperty("description", out _));
+        Assert.True(first.TryGetProperty("amount", out _));
+        Assert.True(first.TryGetProperty("paid_by", out _));
+        Assert.True(first.TryGetProperty("paid_by_name", out _));
+        Assert.True(first.TryGetProperty("split_among", out _));
+        Assert.True(first.TryGetProperty("created_at", out _));
+    }
 }
