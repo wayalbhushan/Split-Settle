@@ -1,0 +1,21 @@
+# Decisions
+
+Each entry records a choice, the reason, and the date.
+
+## 1. PostgreSQL with the Npgsql provider (2026-10-24)
+The original SplitLedger already used PostgreSQL, so data and behaviour can be compared directly. It runs in Docker on any operating system, and free hosting services offer it. The same database is used in development and production, so migrations behave the same in both.
+
+## 2. Controllers instead of minimal APIs (2026-10-24)
+This API will have many endpoints grouped by resource, with validation and consistent error responses. Controllers with attribute routing keep each resource in one class and map closely to Spring Boot controllers and Django REST Framework views, which I already know.
+
+## 3. Four projects: Core, Data, Api, Tests (2026-10-24)
+Core holds the entities and the money logic (split, balance, settlement) and has no database dependency, so it can be unit tested without a database. Data holds the DbContext and migrations. Api holds controllers and wiring. Tests references Core and Data.
+
+## 4. numeric(18,2) for money (2026-10-24)
+Money is stored as decimal in C# and numeric(18,2) in PostgreSQL. Double and float cannot represent amounts like 0.10 exactly, and split totals must add up to the cent.
+
+## 5. UTC for all times (2026-10-24)
+All timestamps are stored in UTC in timestamptz columns. Npgsql rejects DateTime values that are not UTC for timestamptz, so the code uses DateTime.UtcNow.
+
+## 6. No Azure for this project (2026-10-24)
+The internship post lists Azure, but this project is deployed on a plain Docker host to keep the scope small and the focus on C# and .NET. The project will not be described as an Azure deployment.

@@ -1,0 +1,17 @@
+# .NET
+bin/
+obj/
+.vs/
+*.user
+appsettings.*.local.json
+
+# Node
+node_modules/
+dist/
+
+# Secrets and local data
+.env
+.env.local
+
+# Read-only copy of the Django project
+reference/
