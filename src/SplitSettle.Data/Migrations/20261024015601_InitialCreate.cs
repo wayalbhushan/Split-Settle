@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -124,6 +124,9 @@ namespace SplitSettle.Data.Migrations
                 name: "IX_Members_GroupId",
                 table: "Members",
                 column: "GroupId");
+
+            migrationBuilder.Sql("ALTER TABLE \"Expenses\" ALTER CONSTRAINT \"FK_Expenses_Members_PaidByMemberId\" DEFERRABLE INITIALLY DEFERRED;");
+            migrationBuilder.Sql("ALTER TABLE \"ExpenseSplits\" ALTER CONSTRAINT \"FK_ExpenseSplits_Members_MemberId\" DEFERRABLE INITIALLY DEFERRED;");
         }
 
         /// <inheritdoc />

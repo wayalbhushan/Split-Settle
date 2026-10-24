@@ -19,3 +19,7 @@ All timestamps are stored in UTC in timestamptz columns. Npgsql rejects DateTime
 
 ## 6. No Azure for this project (2026-10-24)
 The internship post lists Azure, but this project is deployed on a plain Docker host to keep the scope small and the focus on C# and .NET. The project will not be described as an Azure deployment.
+
+## 7. NO ACTION with DEFERRABLE INITIALLY DEFERRED for member foreign keys (2026-10-24)
+Deleting a member who is an expense payer or has a split must be prohibited to prevent dangling financial records. If ON DELETE RESTRICT is used, PostgreSQL immediately blocks cascading deletion of an entire group because members are deleted while expenses still reference them during the cascade. Using NO ACTION with DEFERRABLE INITIALLY DEFERRED defers constraint evaluation to the end of the statement: individual member deletion is blocked, while deleting an entire group succeeds because both members and expenses are cleanly removed in the same operation.
+
