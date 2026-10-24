@@ -4,7 +4,7 @@
 - Status: done
 - Date: 2026-10-24
 - Test totals: 43 passed, 0 failed
-- Last commit hash: pending
+- Last commit hash: b850b1f
 - Notes: Implemented Groups and Members controllers, DTOs, scoped services, ProblemDetails global exception handler, Decision 10, and WebApplicationFactory integration test suite.
 - Needs from me: none
 
