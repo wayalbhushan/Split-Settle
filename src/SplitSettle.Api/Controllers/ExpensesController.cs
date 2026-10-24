@@ -9,10 +9,12 @@ using SplitSettle.Api.Services;
 public class ExpensesController : ControllerBase
 {
     private readonly IExpenseService _expenseService;
+    private readonly IParseService _parseService;
 
-    public ExpensesController(IExpenseService expenseService)
+    public ExpensesController(IExpenseService expenseService, IParseService parseService)
     {
         _expenseService = expenseService;
+        _parseService = parseService;
     }
 
     [HttpGet]
@@ -53,5 +55,15 @@ public class ExpensesController : ControllerBase
     {
         await _expenseService.DeleteExpenseAsync(groupId, expenseId, cancellationToken);
         return NoContent();
+    }
+
+    [HttpPost("parse")]
+    public async Task<ActionResult<ParsedExpenseDraft>> ParseExpense(
+        int groupId,
+        [FromBody] ParseExpenseRequest request,
+        CancellationToken cancellationToken)
+    {
+        var draft = await _parseService.ParseExpenseSentenceAsync(groupId, request?.Sentence, cancellationToken);
+        return Ok(draft);
     }
 }

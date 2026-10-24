@@ -33,19 +33,19 @@
 - Needs from me: none
 
 ## Phase 6: Generative AI Parse Feature
-- Status: in progress
+- Status: done
 - Date: 2026-10-24
-- Test totals: 62 passed, 0 failed
-- Last commit hash: 
-- Notes: Starting Phase 6 natural language expense parse feature.
+- Test totals: 75 passed, 0 failed
+- Last commit hash: pending
+- Notes: Implemented ILlmClient in Core, LlmClient with Gemini and Groq support, ParseService with prompt safety delimiters and strict JSON validation, POST parse endpoint, eval dataset with 20 sentences including 4 hard cases, fake LLM test suite, NOT MEASURED in docs/AI_EVAL.md, and React natural language parse box with draft preview.
 - Needs from me: none
 
 ## Phase 7: Docker, CI, Configuration
-- Status: not started
-- Date: 
-- Test totals: 
+- Status: in progress
+- Date: 2026-10-24
+- Test totals: 75 passed, 0 failed
 - Last commit hash: 
-- Notes: 
+- Notes: Starting Phase 7 multi-stage Dockerfile, startup migrations, GitHub Actions CI workflow, and README updates.
 - Needs from me: GitHub repository URL (at stop gate S4)
 
 ## Phase 8: Deployment

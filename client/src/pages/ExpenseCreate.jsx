@@ -17,6 +17,11 @@ function ExpenseCreate() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [sentence, setSentence] = useState('');
+  const [isParsing, setIsParsing] = useState(false);
+  const [parseError, setParseError] = useState(null);
+  const [draft, setDraft] = useState(null);
+
   useEffect(() => {
     fetchApi(`/groups/${id}/members/`)
       .then(data => {
@@ -71,12 +76,78 @@ function ExpenseCreate() {
     }
   };
 
+  const handleParse = async (e) => {
+    e.preventDefault();
+    if (!sentence.trim() || isParsing) return;
+    setIsParsing(true);
+    setParseError(null);
+
+    try {
+      const data = await fetchApi(`/groups/${id}/expenses/parse/`, {
+        method: 'POST',
+        body: JSON.stringify({ sentence: sentence.trim() })
+      });
+      setDraft(data);
+    } catch (err) {
+      setParseError(err.message || 'Failed to parse expense sentence.');
+    } finally {
+      setIsParsing(false);
+    }
+  };
+
+  const handleConfirmDraft = () => {
+    if (!draft) return;
+    if (draft.description) setDescription(draft.description);
+    if (draft.amount) setAmount(draft.amount);
+    if (draft.paid_by) setPaidBy(draft.paid_by.toString());
+    if (draft.split_among && Array.isArray(draft.split_among)) setSplitAmong(draft.split_among);
+    setDraft(null);
+    setSentence('');
+    setParseError(null);
+  };
+
+  const handleCancelDraft = () => {
+    setDraft(null);
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
     <div>
       <h2 className="serif">Add Expense</h2>
       {error && <div className="error-banner">{error}</div>}
+
+      <div style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid var(--border-color)', background: '#FAF9F5' }}>
+        <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Add by sentence</label>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <input 
+            type="text" 
+            placeholder="e.g. Dinner 1200 paid by Rahul, split among Rahul, Priya and Amit"
+            value={sentence}
+            onChange={e => setSentence(e.target.value)}
+            maxLength={300}
+            style={{ flex: 1 }}
+          />
+          <button type="button" onClick={handleParse} disabled={isParsing || !sentence.trim()}>
+            {isParsing ? 'Parsing...' : 'Parse'}
+          </button>
+        </div>
+        {parseError && <div className="error-message" style={{ marginTop: '0.5rem' }}>{parseError}</div>}
+
+        {draft && (
+          <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fff', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.35rem' }}>Draft Preview:</div>
+            <div><strong>Description:</strong> {draft.description}</div>
+            <div><strong>Amount:</strong> ₹{draft.amount}</div>
+            <div><strong>Paid by:</strong> {draft.paid_by_name}</div>
+            <div><strong>Split among:</strong> {draft.split_among_names ? draft.split_among_names.join(', ') : draft.split_among.join(', ')}</div>
+            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+              <button type="button" onClick={handleConfirmDraft}>Confirm</button>
+              <button type="button" onClick={handleCancelDraft} style={{ background: '#eee', color: '#1C1B19' }}>Cancel</button>
+            </div>
+          </div>
+        )}
+      </div>
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">

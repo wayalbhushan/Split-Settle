@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using SplitSettle.Api.Errors;
 using SplitSettle.Api.Services;
+using SplitSettle.Core.Services;
 using SplitSettle.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<ILlmClient, LlmClient>();
+builder.Services.AddScoped<IParseService, ParseService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();

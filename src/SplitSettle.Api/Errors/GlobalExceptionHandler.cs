@@ -54,6 +54,18 @@ public class GlobalExceptionHandler : IExceptionHandler
                 problemDetails.Detail = argument.Message;
                 break;
 
+            case LlmNotConfiguredException notConfigured:
+                problemDetails.Status = StatusCodes.Status503ServiceUnavailable;
+                problemDetails.Title = "Service Unavailable";
+                problemDetails.Detail = notConfigured.Message;
+                break;
+
+            case LlmProviderException providerEx:
+                problemDetails.Status = StatusCodes.Status502BadGateway;
+                problemDetails.Title = "Bad Gateway";
+                problemDetails.Detail = providerEx.Message;
+                break;
+
             default:
                 problemDetails.Status = StatusCodes.Status500InternalServerError;
                 problemDetails.Title = "An error occurred while processing your request.";
