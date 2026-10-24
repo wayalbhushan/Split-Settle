@@ -56,21 +56,23 @@ SplitSettle/
 ### Domain rules
 - Money is `decimal`, stored as `numeric(18,2)`. Never `double` or `float`.
 - All times are stored in UTC. Npgsql rejects non-UTC DateTime values for `timestamptz` columns.
-- Rounding-safe split: for an amount split among k members, compute the base share in whole cents, give each member the base, then hand the leftover cents one at a time to members in a fixed order (by member id). The shares must sum exactly to the amount.
+- Rounding-safe split: for an amount split among k members, compute the base share in whole cents, give each member the base, then hand the leftover cents one at a time to members in ascending member id order. If member count is 0 or less, return empty. The shares must sum exactly to the amount.
 - Net balance per member = total paid minus total share owed.
-- Settlement: put creditors (positive balance) in one max-heap and debtors (negative balance, as absolute values) in another. Repeatedly take the largest of each, transfer the smaller of the two amounts, and push the remainder back. Stop when both heaps are empty. .NET's `PriorityQueue` is a min-heap, so a max-heap needs the priority negated. The result has at most N-1 transfers.
-- Deleting a member who paid for an expense or has a split is not allowed. Return 409.
-- Deleting a group must still work, and removes its members, expenses and splits.
+- Settlement: put creditors (positive balance) in one max-heap and debtors (negative balance, as absolute values) in another. When balances are equal, tie-break by ascending member ID for deterministic ordering. Repeatedly take the largest of each, transfer the smaller of the two amounts, and push the remainder back (if > 0.001 epsilon). Stop when both heaps are empty (or everyone is at zero balance). The result has at most N-1 transfers.
+- Deleting a member who paid for an expense or has a split is blocked at the database level with NO ACTION (deferrable).
+- Deleting a group cascades to its members, expenses and splits.
 
 ### API contract
-Match the original SplitLedger contract wherever practical, using the reference code to get it exactly right. Configure JSON so field names stay snake_case if the React app expects that (`JsonNamingPolicy.SnakeCaseLower` in .NET 8). Record any difference in `docs/DECISIONS.md`. The draft endpoints are:
-- `GET /api/groups`, `POST /api/groups`, `GET /api/groups/{id}`
-- `POST /api/groups/{id}/members`, `DELETE /api/members/{id}`, `GET /api/members/{id}` (paid, owed, net, and their expenses)
-- `GET /api/groups/{id}/expenses`, `POST /api/groups/{id}/expenses` (description, amount, paid-by member, and an optional list of members to split among)
-- `PUT /api/expenses/{id}`, `DELETE /api/expenses/{id}` (both regenerate splits)
-- `GET /api/groups/{id}/balances`, `GET /api/groups/{id}/settlements`
-- `POST /api/groups/{id}/expenses/parse` (the AI feature, Phase 6)
+Match the original SplitLedger contract using the reference code. Trailing slashes are preserved to match the React client calls, and JSON field names use snake_case (`JsonNamingPolicy.SnakeCaseLower` in .NET 8). The real endpoints from SplitLedger are:
+- `GET /api/groups/`, `POST /api/groups/`, `GET /api/groups/{id}/`
+- `GET /api/groups/{id}/members/`, `POST /api/groups/{id}/members/`, `GET /api/groups/{id}/members/{member_id}/` (member balance, paid expenses, owed expenses)
+- `GET /api/groups/{id}/expenses/`, `POST /api/groups/{id}/expenses/`
+- `PUT /api/groups/{id}/expenses/{expense_id}/`, `DELETE /api/groups/{id}/expenses/{expense_id}/` (regenerates splits)
+- `GET /api/groups/{id}/balances/`, `GET /api/groups/{id}/settlements/`
+- `POST /api/groups/{id}/expenses/parse/` (the AI feature, Phase 6)
 - `GET /health`
+
+Note: Neither a `DELETE /api/members/{id}` nor a `DELETE /api/groups/{id}` endpoint exists in SplitLedger or its UI; member and group lifecycles in the API only support creation and retrieval.
 
 Errors use ProblemDetails with these status codes: 400 for validation, 404 for missing records, 409 for conflicts.
 

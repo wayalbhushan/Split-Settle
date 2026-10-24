@@ -23,3 +23,7 @@ The internship post lists Azure, but this project is deployed on a plain Docker 
 ## 7. NO ACTION with DEFERRABLE INITIALLY DEFERRED for member foreign keys (2026-10-24)
 Deleting a member who is an expense payer or has a split must be prohibited to prevent dangling financial records. If ON DELETE RESTRICT is used, PostgreSQL immediately blocks cascading deletion of an entire group because members are deleted while expenses still reference them during the cascade. Using NO ACTION with DEFERRABLE INITIALLY DEFERRED defers constraint evaluation to the end of the statement: individual member deletion is blocked, while deleting an entire group succeeds because both members and expenses are cleanly removed in the same operation.
 
+## 8. Preserving SplitLedger route hierarchy, trailing slashes, and deterministic tie-breaking (2026-10-24)
+The React client relies on nested resource routes with trailing slashes (such as `/api/groups/{id}/expenses/`). To keep the React client completely unmodified, ASP.NET Core controllers will adopt these nested routes and trailing slashes. In addition, the settlement algorithm enforces deterministic tie-breaking by member ID to match the original heap behavior.
+
+
