@@ -12,7 +12,7 @@
 - Status: done
 - Date: 2026-10-24
 - Test totals: 51 passed, 0 failed
-- Last commit hash: pending
+- Last commit hash: cc617d5
 - Notes: Implemented Expenses, Balances, and Settlements controllers, DTOs, scoped services, input validation, zero-sum precondition check, tools/golden/make_golden.py generator, 3 golden datasets, and verified exact match against real Django calculations.
 - Needs from me: none
 
