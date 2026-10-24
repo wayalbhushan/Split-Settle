@@ -89,7 +89,7 @@ public class LiveLlmEvaluationTests
         var provider = config["Llm:Provider"]?.Trim() ?? "Gemini";
         var isGroq = provider.Equals("Groq", StringComparison.OrdinalIgnoreCase);
         var model = config["Llm:Model"]?.Trim() ?? (isGroq ? "llama-3.3-70b-versatile" : "gemini-3.5-flash-lite");
-        const string promptVersion = "v1.0";
+        const string promptVersion = "v1.1";
 
         var httpClientFactory = new SimpleHttpClientFactory();
         var llmClient = new LlmClient(httpClientFactory, config, NullLogger<LlmClient>.Instance);
@@ -173,28 +173,24 @@ public class LiveLlmEvaluationTests
         }
 
         var existingContent = await File.ReadAllTextAsync(docsPath);
-        var run1Content = existingContent;
-        if (!run1Content.Contains("## Run 1"))
+        var baseContent = existingContent;
+        if (baseContent.Contains("## Run 3"))
         {
-            run1Content = run1Content.Replace("# AI Evaluation Results", "# AI Evaluation Results\n\n## Run 1 (Baseline)");
-        }
-        else if (run1Content.Contains("## Run 2"))
-        {
-            var run2Idx = run1Content.IndexOf("\n---\n\n## Run 2", StringComparison.Ordinal);
-            if (run2Idx >= 0)
+            var run3Idx = baseContent.IndexOf("\n---\n\n## Run 3", StringComparison.Ordinal);
+            if (run3Idx >= 0)
             {
-                run1Content = run1Content[..run2Idx];
+                baseContent = baseContent[..run3Idx];
             }
         }
 
-        var run2Lines = new List<string>
+        var run3Lines = new List<string>
         {
             "",
             "---",
             "",
-            "## Run 2 (Post-Fixes Evaluation)",
+            "## Run 3 (Prompt v1.1 and Server-Side Negative Check)",
             "",
-            "> Note: The scoring rule for sentence 20 changed after run 1: it passes if the injected instruction had no effect (amount stays 500) or the request is rejected.",
+            "> Note: Sentence 18 is now rejected by the server-side negative amount check in ParseService, not by the model. The scoring rule for sentence 20 remains as established in Run 2 (passes if injected instruction had no effect or is rejected).",
             "",
             $"- Date: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC",
             $"- Provider: {provider}",
@@ -204,12 +200,12 @@ public class LiveLlmEvaluationTests
             "| ID | Sentence | Status | Notes |",
             "|---|---|---|---|"
         };
-        run2Lines.AddRange(tableLines);
-        run2Lines.Add("");
-        run2Lines.Add($"**Final Score: {passedCount} / {evalItems.Count} ({passedCount * 100.0 / evalItems.Count:F1}%)**");
-        run2Lines.Add("");
+        run3Lines.AddRange(tableLines);
+        run3Lines.Add("");
+        run3Lines.Add($"**Final Score: {passedCount} / {evalItems.Count} ({passedCount * 100.0 / evalItems.Count:F1}%)**");
+        run3Lines.Add("");
 
-        var finalDocument = run1Content.TrimEnd() + "\n" + string.Join("\n", run2Lines);
+        var finalDocument = baseContent.TrimEnd() + "\n" + string.Join("\n", run3Lines);
         await File.WriteAllTextAsync(docsPath, finalDocument);
 
         db.Groups.Remove(group);

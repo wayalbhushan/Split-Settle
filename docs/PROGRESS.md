@@ -51,9 +51,9 @@
 ## Pre-Phase 8 Fixes
 - Status: done
 - Date: 2026-10-24
-- Test totals: 84 passed, 0 failed, 0 skipped
-- Last commit hash: c167464
-- Notes: Rebuilt docs/TEST_MATRIX.md honestly with dedicated tests for members list, POST member, member detail with expenses, and expenses list, plus 502/503 columns. Updated ParseService to reject negative amounts in sentence, reject empty/whitespace member names, and deduplicate duplicate member names in split_among (Decision 12). Added fake client tests for unknown name alone, unknown name mixed, duplicate deduping, amount -500, amount 0, and no model configured (503). Ran live eval run 2 in docs/AI_EVAL.md achieving 19/20 (95.0%) with updated sentence 20 rule. Verified zero secrets in git repository.
+- Test totals: 96 passed, 0 failed, 0 skipped
+- Last commit hash: 00cb8a0
+- Notes: Rebuilt docs/TEST_MATRIX.md honestly with dedicated tests for all endpoints and status codes, splitting omnibus 404 tests into individual endpoint tests. Expanded negative amount detection in ParseService to catch unicode minus (U+2212) and words 'minus'/'negative', while preserving hyphens in punctuation, hyphenated words, and number ranges. Created prompt v1.1 instructing model to copy names without dropping unknown participants, enabling validator rejection of unknown members. Ran live eval run 3 in docs/AI_EVAL.md achieving 20/20 (100.0%). Verified zero secrets in repository.
 - Needs from me: none
 
 ## Phase 8: Deployment

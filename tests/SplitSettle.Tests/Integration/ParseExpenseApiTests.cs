@@ -435,4 +435,163 @@ public class ParseExpenseApiTests
         Assert.Equal(503, problem.Status);
         Assert.Contains("A model is required", problem.Detail);
     }
+
+    [Fact]
+    public async Task Parse_NegativeAmount_UnicodeMinus_Returns400ProblemDetails()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("""
+        {
+            "description": "Refund",
+            "amount": 200,
+            "paid_by": "Rahul",
+            "split_among": ["Rahul", "Priya"]
+        }
+        """));
+        var (groupId, _, _, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Refund \u2212200 paid by Rahul"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(JsonOptions);
+        Assert.NotNull(problem);
+        Assert.Contains("greater than zero", problem.Detail);
+    }
+
+    [Fact]
+    public async Task Parse_NegativeAmount_WordMinus_Returns400ProblemDetails()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("""
+        {
+            "description": "Refund",
+            "amount": 200,
+            "paid_by": "Rahul",
+            "split_among": ["Rahul", "Priya"]
+        }
+        """));
+        var (groupId, _, _, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Refund minus 200 paid by Rahul"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(JsonOptions);
+        Assert.NotNull(problem);
+        Assert.Contains("greater than zero", problem.Detail);
+    }
+
+    [Fact]
+    public async Task Parse_NegativeAmount_WordNegative_Returns400ProblemDetails()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("""
+        {
+            "description": "Refund",
+            "amount": 200,
+            "paid_by": "Rahul",
+            "split_among": ["Rahul", "Priya"]
+        }
+        """));
+        var (groupId, _, _, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Refund negative 200 paid by Rahul"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(JsonOptions);
+        Assert.NotNull(problem);
+        Assert.Contains("greater than zero", problem.Detail);
+    }
+
+    [Fact]
+    public async Task Parse_HyphenAsPunctuation_DoesNotReject()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("""
+        {
+            "description": "Taxi",
+            "amount": 300,
+            "paid_by": "Rahul",
+            "split_among": ["Rahul", "Priya"]
+        }
+        """));
+        var (groupId, _, _, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Taxi 300 - paid by Rahul, split among all"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var draft = await response.Content.ReadFromJsonAsync<ParsedExpenseDraft>(JsonOptions);
+        Assert.NotNull(draft);
+        Assert.Equal("Taxi", draft.Description);
+        Assert.Equal("300.00", draft.Amount);
+    }
+
+    [Fact]
+    public async Task Parse_HyphenatedWord_DoesNotReject()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("""
+        {
+            "description": "Pre-dinner drinks",
+            "amount": 500,
+            "paid_by": "Rahul",
+            "split_among": ["Rahul", "Priya"]
+        }
+        """));
+        var (groupId, _, _, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Pre-dinner drinks 500 paid by Rahul, split among all"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var draft = await response.Content.ReadFromJsonAsync<ParsedExpenseDraft>(JsonOptions);
+        Assert.NotNull(draft);
+        Assert.Equal("Pre-dinner drinks", draft.Description);
+        Assert.Equal("500.00", draft.Amount);
+    }
+
+    [Fact]
+    public async Task Parse_NumberRangeHyphen_DoesNotReject()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("""
+        {
+            "description": "Hotel room 101-102",
+            "amount": 3600,
+            "paid_by": "Rahul",
+            "split_among": ["Rahul", "Priya"]
+        }
+        """));
+        var (groupId, _, _, _) = await CreateTestGroupWithMembersAsync(client);
+
+        var response = await client.PostAsJsonAsync(
+            $"/api/groups/{groupId}/expenses/parse/",
+            new ParseExpenseRequest("Hotel room 101-102 3600 paid by Rahul, split among all"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var draft = await response.Content.ReadFromJsonAsync<ParsedExpenseDraft>(JsonOptions);
+        Assert.NotNull(draft);
+        Assert.Equal("Hotel room 101-102", draft.Description);
+        Assert.Equal("3600.00", draft.Amount);
+    }
+
+    [Fact]
+    public async Task ParseExpense_NonExistentGroup_Returns404NotFound()
+    {
+        var client = CreateClientWithLlm(_ => Task.FromResult("{}"));
+        var response = await client.PostAsJsonAsync(
+            "/api/groups/999999/expenses/parse/",
+            new ParseExpenseRequest("Dinner 500 paid by Rahul"),
+            JsonOptions);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 }

@@ -196,33 +196,47 @@ public class ExpensesAndSettlementsApiTests
     }
 
     [Fact]
-    public async Task ExpenseEndpoints_NonExistentGroupOrExpense_Returns404NotFound()
+    public async Task GetExpenses_NonExistentGroup_Returns404NotFound()
     {
-        // GET expenses for missing group
-        var getExpRes = await _client.GetAsync("/api/groups/999999/expenses/");
-        Assert.Equal(HttpStatusCode.NotFound, getExpRes.StatusCode);
+        var response = await _client.GetAsync("/api/groups/999999/expenses/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
-        // POST expense for missing group
-        var postExpRes = await _client.PostAsJsonAsync("/api/groups/999999/expenses/",
+    [Fact]
+    public async Task PostExpense_NonExistentGroup_Returns404NotFound()
+    {
+        var response = await _client.PostAsJsonAsync("/api/groups/999999/expenses/",
             new CreateExpenseRequest("Dinner", "50.00", 1, new List<int> { 1 }), JsonOptions);
-        Assert.Equal(HttpStatusCode.NotFound, postExpRes.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
-        // PUT expense for missing group
-        var putExpRes = await _client.PutAsJsonAsync("/api/groups/999999/expenses/1/",
+    [Fact]
+    public async Task PutExpense_NonExistentGroupOrExpense_Returns404NotFound()
+    {
+        var response = await _client.PutAsJsonAsync("/api/groups/999999/expenses/1/",
             new UpdateExpenseRequest("Dinner", "50.00", 1, new List<int> { 1 }), JsonOptions);
-        Assert.Equal(HttpStatusCode.NotFound, putExpRes.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
-        // DELETE expense for missing group
-        var delExpRes = await _client.DeleteAsync("/api/groups/999999/expenses/1/");
-        Assert.Equal(HttpStatusCode.NotFound, delExpRes.StatusCode);
+    [Fact]
+    public async Task DeleteExpense_NonExistentGroupOrExpense_Returns404NotFound()
+    {
+        var response = await _client.DeleteAsync("/api/groups/999999/expenses/1/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
-        // GET balances for missing group
-        var balRes = await _client.GetAsync("/api/groups/999999/balances/");
-        Assert.Equal(HttpStatusCode.NotFound, balRes.StatusCode);
+    [Fact]
+    public async Task GetBalances_NonExistentGroup_Returns404NotFound()
+    {
+        var response = await _client.GetAsync("/api/groups/999999/balances/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
-        // GET settlements for missing group
-        var setRes = await _client.GetAsync("/api/groups/999999/settlements/");
-        Assert.Equal(HttpStatusCode.NotFound, setRes.StatusCode);
+    [Fact]
+    public async Task GetSettlements_NonExistentGroup_Returns404NotFound()
+    {
+        var response = await _client.GetAsync("/api/groups/999999/settlements/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
