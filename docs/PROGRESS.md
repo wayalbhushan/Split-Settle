@@ -28,7 +28,7 @@
 - Status: done
 - Date: 2026-10-24
 - Test totals: 62 passed, 0 failed
-- Last commit hash: pending
+- Last commit hash: 85e6c95
 - Notes: Wired client/src/api.js with VITE_API_BASE_URL, enabled CORS in .NET API, verified build and lint, documented all 12 client calls in docs/CLIENT_CALLS.md, verified manual checklist in docs/MANUAL_TEST.md, and validated all user flows in browser.
 - Needs from me: none
 
