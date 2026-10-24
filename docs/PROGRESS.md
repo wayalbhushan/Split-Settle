@@ -52,7 +52,7 @@
 - Status: done
 - Date: 2026-10-24
 - Test totals: 96 passed, 0 failed, 0 skipped
-- Last commit hash: 00cb8a0
+- Last commit hash: fe73f77
 - Notes: Rebuilt docs/TEST_MATRIX.md honestly with dedicated tests for all endpoints and status codes, splitting omnibus 404 tests into individual endpoint tests. Expanded negative amount detection in ParseService to catch unicode minus (U+2212) and words 'minus'/'negative', while preserving hyphens in punctuation, hyphenated words, and number ranges. Created prompt v1.1 instructing model to copy names without dropping unknown participants, enabling validator rejection of unknown members. Ran live eval run 3 in docs/AI_EVAL.md achieving 20/20 (100.0%). Verified zero secrets in repository.
 - Needs from me: none
 
